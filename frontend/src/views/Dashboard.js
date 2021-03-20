@@ -85,6 +85,8 @@ function RecipeReviewCard() {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
+  const [notifications, setNotifications] = React.useState([]);
+
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
@@ -92,7 +94,7 @@ function RecipeReviewCard() {
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
     socket.on("event", event => {
-      console.log(event);
+      setNotifications(notifications => [...notifications, event]);
     });
   }, []);
 
