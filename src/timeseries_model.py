@@ -42,17 +42,26 @@ from tqdm import tqdm_notebook as tqdm
 
 from torch.utils.tensorboard import SummaryWriter
 
+from data_processing.load_data import load_data
+
 import warnings
 warnings.filterwarnings("ignore")
 import logging
 logging.disable(logging.CRITICAL)
 
 
+import os 
+
+print(os.getcwd())
+
 ### Import Data 
 #######################################################
-df = pd.read_csv('https://raw.githubusercontent.com/unit8co/darts/master/examples/AirPassengers.csv')
-series = TimeSeries.from_dataframe(df, 'Month', '#Passengers')
+# df = pd.read_csv('https://raw.githubusercontent.com/unit8co/darts/master/examples/AirPassengers.csv')
+# series = TimeSeries.from_dataframe(df, 'Month', '#Passengers')
 
+# df = load_data()
+# print(df)
+'''
 ### Train and Test Model
 #######################################################
 
@@ -105,3 +114,4 @@ eval_model(my_model)
 # prediction.plot(label='forecast', lw=3)
 # plt.legend()
 # plt.show()
+'''
