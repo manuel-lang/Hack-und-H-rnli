@@ -54,11 +54,18 @@ import wapi
 # sys.path.insert(0, './data_processing/load_data')
 # from data_processing.load_data import load_data
 
+### User Specifics
+#######################################################
+
+# Specify if you want to train a new model or use a trained Model
+train_new_model = True
 
 ### Import Data
 ######################################################
 
 df = pd.read_csv("data/input_data.csv")
+
+# Rename columns
 header=df.columns
 df.rename(columns={header[0]: "time",
            header[1]: "wind actual",
@@ -68,28 +75,13 @@ df.reset_index()
 df.set_index("time")
 df["time"] = pd.to_datetime(df["time"], utc=True)
 
+# Transform DataFrame to Time Series Object
 df_series = TimeSeries.from_dataframe(df[["time","price actual"]], time_col='time', value_cols="price actual")
-
-# sns.set_theme()
-
-# plt.figure(figsize=(10,5))
-# plt.suptitle("Time Series", fontsize=20)
-# plt.plot(df.iloc[:1000,2],label='predicted price')
-# plt.plot(df.iloc[:1000,3],label='actual price')
-# # plt.xticks(np.arange(100))
-# plt.legend()
-# plt.show()
-
-# plt.figure(figsize=(10,5))
-# plt.suptitle("Time Series", fontsize=20)
-# plt.plot(df.iloc[:1000,1],label='wind actual')
-# # plt.xticks(np.arange(100))
-# plt.legend()
-# plt.show()
 
 ### Train and Test Model
 #######################################################
 
+# Train Test Split
 train, val = df_series.split_before(pd.Timestamp("2021-03-01 00:00:00+00:00"))
 
 # Normalize the time series (note: we avoid fitting the transformer on the validation set)
@@ -98,6 +90,7 @@ train_transformed = transformer.fit_transform(train)
 val_transformed = transformer.transform(val)
 series_transformed = transformer.transform(df_series)
 
+# Define the LSTM Model parameters
 my_model = RNNModel(
     model='LSTM',
     input_chunk_length=24,
@@ -113,9 +106,13 @@ my_model = RNNModel(
     random_state=42
 )
 
-# my_model.fit(train_transformed, val_series=val_transformed, verbose=True)
-my_model = RNNModel.load_from_checkpoint(model_name='Forecast_LSTM_next_hour', best=True)
+# Either train a new model or load best model from checkpoint
+if train_new_model==True:
+    my_model.fit(train_transformed, val_series=val_transformed, verbose=True)
+else:
+    my_model = RNNModel.load_from_checkpoint(model_name='Forecast_LSTM_next_hour', best=True)
 
+# Evaluate Predictions 
 def eval_model(model):
     pred_series = model.predict(n=len(val_transformed))
 
@@ -126,22 +123,12 @@ def eval_model(model):
     plt.legend()
     plt.show()
 
-# eval_model(my_model)
 def backtest(model):
     backtest_series = model.historical_forecasts(series_transformed,
                                 start=pd.Timestamp("2021-03-01 00:00:00+00:00"),
                                 forecast_horizon=1,
                                 retrain=False,
                                 verbose=True)
-
-
-    plt.figure(figsize=(8,5))
-    slice_series_transformed = series_transformed.slice(pd.Timestamp("2021-03-01 00:00:00+00:00"), pd.Timestamp("2021-03-19 23:00:00+01:00"))
-    slice_series_transformed.plot(label='actual')
-    backtest_series.plot(label='backtest')
-    plt.legend()
-    plt.title('Backtest, starting March 2021')
-    plt.show();
 
     plt.figure(figsize=(8,5))
     slice_series_transformed = series_transformed.slice(pd.Timestamp("2021-03-01 00:00:00+00:00"), pd.Timestamp("2021-03-19 23:00:00+01:00"))
@@ -150,22 +137,5 @@ def backtest(model):
     plt.legend()
     plt.title('Backtest, starting March 2021')
     plt.show();
-
-    df_output = transformer.inverse_transform(backtest_series).pd_dataframe()
-    cols = df_output.columns
-    df_output.rename({cols[0]: 'Forecast'}, inplace=True)
-    df_output.to_csv("data/forecast.csv")
-
-    df_output_2 = transformer.inverse_transform(slice_series_transformed).pd_dataframe()
-    cols = df_output_2.columns
-    df_output_2.rename({cols[0]: 'Actual Price'}, inplace=True)
-    df_output_2.to_csv("data/actual_price.csv")
-
-    print(df_output.shape)
-    print(df_output.columns)
-    # df_output["Price Actual"] = slice_series_transformed.slice(pd.Timestamp("2021-03-01 00:00:00+00:00"), pd.Timestamp("2021-03-19 21:00:00+00:00"))
-    # df_output.rename({"0":"Forecast"}, inplace=True)
-    # print('MAPE: {:.2f}%'.format(mape(transformer.inverse_transform(series_transformed),
-    #                                 transformer.inverse_transform(backtest_series))))
 
 backtest(my_model)
