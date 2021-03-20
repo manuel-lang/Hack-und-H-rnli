@@ -25,8 +25,8 @@ app = Flask(__name__)
 
 socketio = SocketIO(app, async_mode=None, logger=True, engineio_logger=True, cors_allowed_origins="*")
 
-def send_data(eventType: str, notification: Notification):
-    socketio.emit(eventType, notification.__dict__,  namespace='/socket')
+def send_data(notification: Notification):
+    socketio.emit("event", notification.__dict__,  namespace='/socket')
 
 
 def main():
