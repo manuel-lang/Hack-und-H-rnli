@@ -78,6 +78,7 @@ const useStyles = makeStyles({
 
 
 function RecipeReviewCard() {
+
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
@@ -86,51 +87,28 @@ function RecipeReviewCard() {
   };
 
   return (
-    <Card className={classes.root}>
-      <CardHeader
-        avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            R
-          </Avatar>
-        }
-        action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
-        }
-        title="Shrimp and Chorizo Paella"
-        subheader="September 14, 2016"
-      />
-      <CardMedia
-        className={classes.media}
-        image="/static/images/cards/paella.jpg"
-        title="Paella dish"
-      />
-      <CardContent>
-        <Typography variant="body2" color="textSecondary" component="p">
-          This impressive paella is a perfect party dish and a fun meal to cook together with your
-          guests. Add 1 cup of frozen peas along with the mussels, if you like.
-        </Typography>
-      </CardContent>
-      <CardActions disableSpacing>
+      <div>
         <IconButton aria-label="add to favorites">
-          <FavoriteIcon />
+          <FavoriteIcon 
+            color="primary"
+          />
         </IconButton>
         <IconButton aria-label="share">
           <ShareIcon />
         </IconButton>
         <IconButton
           className={clsx(classes.expand, {
-            [classes.expandOpen]: expanded,
+            [classes.expandOpen]: expanded
           })}
           onClick={handleExpandClick}
           aria-expanded={expanded}
           aria-label="show more"
+          // className="btn-icon"
+          // color="red"
         >
           <ExpandMoreIcon />
         </IconButton>
-      </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography paragraph>Method:</Typography>
           <Typography paragraph>
@@ -157,7 +135,7 @@ function RecipeReviewCard() {
           </Typography>
         </CardContent>
       </Collapse>
-    </Card>
+      </div>
   );
 }
 
@@ -169,7 +147,7 @@ function Dashboard(props) {
   return (
     <>
       <div className="content">
-        <Row>
+      {/* <Row>
           <Col xs="12">
             <Card className="card-chart">
               <CardHeader>
@@ -177,6 +155,83 @@ function Dashboard(props) {
                   <Col className="text-left" sm="6">
                     <h5 className="card-category">Total Shipments</h5>
                     <CardTitle tag="h2">Performance</CardTitle>
+                  </Col>
+                  <Col sm="6">
+                    <ButtonGroup
+                      className="btn-group-toggle float-right"
+                      data-toggle="buttons"
+                    >
+                      <Button
+                        tag="label"
+                        className={classNames("btn-simple", {
+                          active: bigChartData === "data1",
+                        })}
+                        color="info"
+                        id="0"
+                        size="sm"
+                        onClick={() => setBgChartData("data1")}
+                      >
+                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
+                          Accounts
+                        </span>
+                        <span className="d-block d-sm-none">
+                          <i className="tim-icons icon-single-02" />
+                        </span>
+                      </Button>
+                      <Button
+                        color="info"
+                        id="1"
+                        size="sm"
+                        tag="label"
+                        className={classNames("btn-simple", {
+                          active: bigChartData === "data2",
+                        })}
+                        onClick={() => setBgChartData("data2")}
+                      >
+                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
+                          Purchases
+                        </span>
+                        <span className="d-block d-sm-none">
+                          <i className="tim-icons icon-gift-2" />
+                        </span>
+                      </Button>
+                      <Button
+                        color="info"
+                        id="2"
+                        size="sm"
+                        tag="label"
+                        className={classNames("btn-simple", {
+                          active: bigChartData === "data3",
+                        })}
+                        onClick={() => setBgChartData("data3")}
+                      >
+                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
+                          Sessions
+                        </span>
+                        <span className="d-block d-sm-none">
+                          <i className="tim-icons icon-tap-02" />
+                        </span>
+                      </Button>
+                    </ButtonGroup>
+                  </Col>
+                </Row>
+              </CardHeader>
+              <CardBody>
+                <div className="chart-area">
+                   <RecipeReviewCard/>
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
+        </Row> */}
+        <Row>
+          <Col xs="12">
+            <Card className="card-chart">
+              <CardHeader>
+                <Row>
+                  <Col className="text-left" sm="6">
+                    <h5 className="card-category">Hourly Buckets (EUR)</h5>
+                    <CardTitle tag="h2">Intraday Price</CardTitle>
                   </Col>
                   <Col sm="6">
                     <ButtonGroup
@@ -253,9 +308,9 @@ function Dashboard(props) {
           <Col lg="4">
             <Card className="card-chart">
               <CardHeader>
-                <h5 className="card-category">Total Shipments</h5>
+                <h5 className="card-category">Wind Speed (m/s)</h5>
                 <CardTitle tag="h3">
-                  <i className="tim-icons icon-bell-55 text-info" /> 763,215
+                  <i className="tim-icons icon-bell-55 text-info" /> 23.9
                 </CardTitle>
               </CardHeader>
               <CardBody>
@@ -271,10 +326,10 @@ function Dashboard(props) {
           <Col lg="4">
             <Card className="card-chart">
               <CardHeader>
-                <h5 className="card-category">Daily Sales</h5>
+                <h5 className="card-category">Temperature (°C)</h5>
                 <CardTitle tag="h3">
                   <i className="tim-icons icon-delivery-fast text-primary" />{" "}
-                  3,500€
+                  16.2
                 </CardTitle>
               </CardHeader>
               <CardBody>
@@ -290,9 +345,9 @@ function Dashboard(props) {
           <Col lg="4">
             <Card className="card-chart">
               <CardHeader>
-                <h5 className="card-category">Completed Tasks</h5>
+                <h5 className="card-category">Precipitation (mm)</h5>
                 <CardTitle tag="h3">
-                  <i className="tim-icons icon-send text-success" /> 12,100K
+                  <i className="tim-icons icon-send text-success" /> 12.3
                 </CardTitle>
               </CardHeader>
               <CardBody>
@@ -636,7 +691,6 @@ function Dashboard(props) {
                 </Table>
               </CardBody>
             </Card>
-            <RecipeReviewCard/>
           </Col>
         </Row>
       </div>
