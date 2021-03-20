@@ -9,7 +9,7 @@ client_secret = "ElZ9zXapi2quS6_.ciyRaBktTflNGLiU04EH5qM1Pm1zvMKpFoxTS4lnhL_ZfAl
 def load_data() -> pd.DataFrame:
     session = wapi.Session(client_id=client_id, client_secret=client_secret)
 
-    start_date = "2018-01-01"
+    start_date = "2019-01-01"
     date_today = datetime.today().strftime('%Y-%m-%d')
 
     historic_wind_curve_name = "pro de-amp wnd da tso mwh/h cet min15 f"
@@ -21,7 +21,6 @@ def load_data() -> pd.DataFrame:
     df = pd.DataFrame()
     for curve_name in curve_names:
         curve = session.get_curve(name=curve_name)
-        curve = session.get_curve(name=price_forecasts_curve_name)
         data = curve.get_data(data_from=start_date, data_to=date_today)
         pd_data = data.to_pandas()
         df[curve_name] = pd_data
@@ -30,4 +29,4 @@ def load_data() -> pd.DataFrame:
 
 if __name__ == "__main__":
     df = load_data()
-    print(df.shape)
+    print(df.iloc[0])
