@@ -1,6 +1,6 @@
 """
 Date: 20.03.2021
-Team: Hack & Hörnli 
+Team: Hack & Hörnli
 
 Time Series Forecasting Model based on Unit8 Darts
 
@@ -47,7 +47,7 @@ warnings.filterwarnings("ignore")
 import logging
 logging.disable(logging.CRITICAL)
 
-import os 
+import os
 import wapi
 
 # Doesn't work for some odd reason
@@ -55,10 +55,8 @@ import wapi
 # from data_processing.load_data import load_data
 
 
-### Import Data 
-#######################################################
-# df = pd.read_csv('https://raw.githubusercontent.com/unit8co/darts/master/examples/AirPassengers.csv')
-# series = TimeSeries.from_dataframe(df, 'Month', '#Passengers')
+### Import Data
+######################################################
 
 df = pd.read_csv("data/input_data.csv")
 header=df.columns
@@ -70,10 +68,8 @@ df.reset_index()
 df.set_index("time")
 df["time"] = pd.to_datetime(df["time"], utc=True)
 
-'''
-print(df[["time","price actual"]])
-# df_series = TimeSeries.from_dataframe(df, time_col='time', value_cols=["wind actual", "price forecast", "price actual"]) 
 df_series = TimeSeries.from_dataframe(df[["time","price actual"]], time_col='time', value_cols="price actual")
+
 # sns.set_theme()
 
 # plt.figure(figsize=(10,5))
@@ -91,12 +87,10 @@ df_series = TimeSeries.from_dataframe(df[["time","price actual"]], time_col='tim
 # plt.legend()
 # plt.show()
 
-
-
 ### Train and Test Model
 #######################################################
 
-train, val = df_series.split_before(pd.Timestamp("2020-01-01 00:00:00+00:00"))
+train, val = df_series.split_before(pd.Timestamp("2021-03-01 00:00:00+00:00"))
 
 # Normalize the time series (note: we avoid fitting the transformer on the validation set)
 transformer = Scaler()
@@ -106,31 +100,72 @@ series_transformed = transformer.transform(df_series)
 
 my_model = RNNModel(
     model='LSTM',
-    input_chunk_length=96,
-    output_chunk_length=96,
+    input_chunk_length=24,
+    output_chunk_length=1,
     hidden_size=25,
-    n_rnn_layers=3,
-    dropout=0.4,
+    n_rnn_layers=1,
+    dropout=0.2,
     batch_size=16,
     n_epochs=20,
-    optimizer_kwargs={'lr': 1e-3}, 
-    model_name='Forecast_RNN',
+    optimizer_kwargs={'lr': 1e-3},
+    model_name='Forecast_LSTM_next_hour',
     log_tensorboard=True,
     random_state=42
 )
 
 # my_model.fit(train_transformed, val_series=val_transformed, verbose=True)
-# my_model = RNNModel.load_from_checkpoint(model_name='Forecast_RNN', best=True)
+my_model = RNNModel.load_from_checkpoint(model_name='Forecast_LSTM_next_hour', best=True)
 
 def eval_model(model):
-    pred_series = model.predict(n=20000)
+    pred_series = model.predict(n=len(val_transformed))
 
     plt.figure(figsize=(8,5))
-    series_transformed.plot(label='actual')
+    val_transformed.plot(label='actual')
     pred_series.plot(label='forecast')
     plt.title('MAPE: {:.2f}%'.format(mape(pred_series, val_transformed)))
     plt.legend()
     plt.show()
-    
-eval_model(my_model)
-'''
+
+# eval_model(my_model)
+def backtest(model):
+    backtest_series = model.historical_forecasts(series_transformed,
+                                start=pd.Timestamp("2021-03-01 00:00:00+00:00"),
+                                forecast_horizon=1,
+                                retrain=False,
+                                verbose=True)
+
+
+    plt.figure(figsize=(8,5))
+    slice_series_transformed = series_transformed.slice(pd.Timestamp("2021-03-01 00:00:00+00:00"), pd.Timestamp("2021-03-19 23:00:00+01:00"))
+    slice_series_transformed.plot(label='actual')
+    backtest_series.plot(label='backtest')
+    plt.legend()
+    plt.title('Backtest, starting March 2021')
+    plt.show();
+
+    plt.figure(figsize=(8,5))
+    slice_series_transformed = series_transformed.slice(pd.Timestamp("2021-03-01 00:00:00+00:00"), pd.Timestamp("2021-03-19 23:00:00+01:00"))
+    transformer.inverse_transform(slice_series_transformed).plot(label='actual')
+    transformer.inverse_transform(backtest_series).plot(label='backtest')
+    plt.legend()
+    plt.title('Backtest, starting March 2021')
+    plt.show();
+
+    df_output = transformer.inverse_transform(backtest_series).pd_dataframe()
+    cols = df_output.columns
+    df_output.rename({cols[0]: 'Forecast'}, inplace=True)
+    df_output.to_csv("data/forecast.csv")
+
+    df_output_2 = transformer.inverse_transform(slice_series_transformed).pd_dataframe()
+    cols = df_output_2.columns
+    df_output_2.rename({cols[0]: 'Actual Price'}, inplace=True)
+    df_output_2.to_csv("data/actual_price.csv")
+
+    print(df_output.shape)
+    print(df_output.columns)
+    # df_output["Price Actual"] = slice_series_transformed.slice(pd.Timestamp("2021-03-01 00:00:00+00:00"), pd.Timestamp("2021-03-19 21:00:00+00:00"))
+    # df_output.rename({"0":"Forecast"}, inplace=True)
+    # print('MAPE: {:.2f}%'.format(mape(transformer.inverse_transform(series_transformed),
+    #                                 transformer.inverse_transform(backtest_series))))
+
+backtest(my_model)

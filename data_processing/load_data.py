@@ -25,9 +25,9 @@ def load_data() -> pd.DataFrame:
         pd_data = data.to_pandas()
         df[curve_name] = pd_data
 
-    return df
+    return df.resample('60min').mean()
 
 if __name__ == "__main__":
     df = load_data()
     df.to_csv("data/input_data.csv")
-    print(df.iloc[0])
+    print(df.index[0:3])
