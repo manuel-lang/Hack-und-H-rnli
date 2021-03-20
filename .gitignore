@@ -132,3 +132,6 @@ dmypy.json
 # Folders and Files
 /data
 .darts/
+
+# Frontend
+/frontend/node_modules
