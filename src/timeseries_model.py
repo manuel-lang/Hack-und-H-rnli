@@ -42,25 +42,47 @@ from tqdm import tqdm_notebook as tqdm
 
 from torch.utils.tensorboard import SummaryWriter
 
-from data_processing.load_data import load_data
-
 import warnings
 warnings.filterwarnings("ignore")
 import logging
 logging.disable(logging.CRITICAL)
 
-
 import os 
+import wapi
 
-print(os.getcwd())
+# Doesn't work for some odd reason
+# sys.path.insert(0, './data_processing/load_data')
+# from data_processing.load_data import load_data
+
 
 ### Import Data 
 #######################################################
 # df = pd.read_csv('https://raw.githubusercontent.com/unit8co/darts/master/examples/AirPassengers.csv')
 # series = TimeSeries.from_dataframe(df, 'Month', '#Passengers')
 
-# df = load_data()
-# print(df)
+df = pd.read_csv("data/input_data.csv")
+print(df.shape)
+print(df.columns)
+
+# print(df.iloc[:,0])
+# sns.set_theme()
+
+# plt.figure(figsize=(10,5))
+# plt.suptitle("Time Series", fontsize=20)
+# plt.plot(df.iloc[:1000,2],label='predicted price')
+# plt.plot(df.iloc[:1000,3],label='actual price')
+# # plt.xticks(np.arange(100))
+# plt.legend()
+# plt.show()
+
+# plt.figure(figsize=(10,5))
+# plt.suptitle("Time Series", fontsize=20)
+# plt.plot(df.iloc[:1000,1],label='wind actual')
+# # plt.xticks(np.arange(100))
+# plt.legend()
+# plt.show()
+
+print(np.sum(df.iloc[:,1]-df.iloc[:,3]))
 '''
 ### Train and Test Model
 #######################################################
