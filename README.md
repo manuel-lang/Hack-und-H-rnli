@@ -1,1 +1,1 @@
-# Hack-und-H-rnli
+# Hack-und-Hoernli
