@@ -31,10 +31,16 @@ import Collapse from '@material-ui/core/Collapse';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import { red } from '@material-ui/core/colors';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
+
+import FlashOnIcon from '@material-ui/icons/FlashOn';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import EuroIcon from '@material-ui/icons/Euro';
+import CloseIcon from '@material-ui/icons/Close';
+
+import { createMuiTheme } from '@material-ui/core/styles';
+
+import Divider from '@material-ui/core/Divider';
 
 import socketIOClient from "socket.io-client";
 
@@ -68,55 +74,152 @@ import {
 } from "variables/charts.js";
 
 
-const useStyles = makeStyles({
-  root: {
-    maxWidth: 345,
-  },
-  media: {
-    height: 140,
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      light: '#757ce8',
+      main: '#3f50b5',
+      dark: '#002884',
+      contrastText: '#fff',
+    },
+    secondary: {
+      light: '#ff7961',
+      main: '#f44336',
+      dark: '#ba000d',
+      contrastText: '#000',
+    },
   },
 });
 
 
+const useStyles = makeStyles({
+  marker: {
+    // backgroundColor: "blue",
+    // width: 100,
+    // margin: 10
+  },
+  colContent: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  iconRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    // backgroundColor: "#1d8cf8",
+    // opacity: 0.2,
+    margin: 10,
+    height: 30,
+  },
+});
 
-function RecipeReviewCard() {
-  
+function FeedItem(props) {
 
+  const ENDPOINT = "http://127.0.0.1:5000/socket";
   const classes = useStyles();
-  const [expanded, setExpanded] = React.useState(false);
 
+  const [expanded, setExpanded] = React.useState(false);
+  const [notifications, setNotifications] = React.useState([]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  
-
   return (
-    <div>
-      <IconButton aria-label="add to favorites">
-        <FavoriteIcon
-          color="primary"
-        />
-      </IconButton>
-      <IconButton aria-label="share">
-        <ShareIcon />
-      </IconButton>
-      <IconButton
-        className={clsx(classes.expand, {
-          [classes.expandOpen]: expanded
-        })}
-        onClick={handleExpandClick}
-        aria-expanded={expanded}
-        aria-label="show more"
-      // className="btn-icon"
-      // color="red"
-      >
-        <ExpandMoreIcon />
-      </IconButton>
+    <Card className={classes.root}>
+      <CardHeader>
+          <Row>
+            <Col sm="12">
+              <div className={classes.marker}>
+                <CardTitle tag="h2">Notification #{props.id}</CardTitle>
+              </div>
+            </Col>
+            {/* <Col sm="1">
+              <CloseIcon 
+                fontSize="large"
+                style={{ color: "#FFFFFF" }}
+              />
+            </Col> */}
+          </Row>
+      </CardHeader>
+
+      <CardContent>
+        <Row>
+          <Col xs="4">
+            <div className={classes.colContent}>
+              <Typography variant="h3">
+                <FlashOnIcon 
+                  fontSize="large"
+                  color="primary"
+                /> {props.impact}
+              </Typography>
+              <h5 className="card-category">Impact Score</h5>
+            </div>
+          </Col>
+
+          <Col xs="4">
+            <div className={classes.colContent}>
+              <Typography variant="h3">
+                <EuroIcon 
+                  fontSize="large"
+                  color="primary"
+                />  {props.priceChange}
+              </Typography>
+              <h5 className="card-category">Relative Price Change</h5>
+            </div>
+          </Col>
+
+          <Col xs="4">
+            <div className={classes.colContent}>
+              <Typography variant="h3">
+                <ScheduleIcon 
+                  fontSize="large"
+                  color="primary"
+                /> {props.timeWindow}
+              </Typography>
+              <h5 className="card-category">Effected Time Bucket</h5>
+            </div>
+          </Col>
+        </Row>
+      </CardContent>
+
+      <div className={classes.iconRow} >
+        <Button variant="outlined">Done</Button>
+      </div>
+
+      <div className={classes.iconRow} >
+        <IconButton
+          className={clsx(classes.expand, {
+            [classes.expandOpen]: expanded,
+          })}
+          onClick={handleExpandClick}
+          aria-expanded={expanded}
+          aria-label="show more"
+        >
+          <ExpandMoreIcon
+            style={{ color: "#FFFFFF" }}
+          />
+        </IconButton>
+      </div>
+      
+      <Divider variant="middle" />
+
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <Typography paragraph>Method:</Typography>
+
+          <Col xs="4">
+            <div className={classes.colContent}>
+              <Typography variant="h3">
+                {props.timeWindow}
+              </Typography>
+              <h5 className="card-category">Effected Time Bucket</h5>
+            </div>
+          </Col>
+
+          {/* <Typography paragraph>Method:</Typography>
           <Typography paragraph>
             Heat 1/2 cup of the broth in a pot until simmering, add saffron and set aside for 10
             minutes.
@@ -138,12 +241,13 @@ function RecipeReviewCard() {
           </Typography>
           <Typography>
             Set aside off of the heat to let rest for 10 minutes, and then serve.
-          </Typography>
+          </Typography> */}
         </CardContent>
       </Collapse>
-    </div>
+    </Card>
   );
 }
+
 
 function Dashboard(props) {
   const ENDPOINT = "http://127.0.0.1:5000/socket";
@@ -163,84 +267,8 @@ function Dashboard(props) {
   }, []);
   return (
     <>
-      <div className="content">
-        <Row>
-          <Col xs="12">
-            <Card className="card-chart">
-              <CardHeader>
-                <Row>
-                  <Col className="text-left" sm="6">
-                    <h5 className="card-category">Total Shipments</h5>
-                    <CardTitle tag="h2">Performance</CardTitle>
-                  </Col>
-                  <Col sm="6">
-                    <ButtonGroup
-                      className="btn-group-toggle float-right"
-                      data-toggle="buttons"
-                    >
-                      <Button
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data1",
-                        })}
-                        color="info"
-                        id="0"
-                        size="sm"
-                        onClick={() => setBgChartData("data1")}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Accounts
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-single-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="1"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data2",
-                        })}
-                        onClick={() => setBgChartData("data2")}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Purchases
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-gift-2" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data3",
-                        })}
-                        onClick={() => setBgChartData("data3")}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Sessions
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
-                    </ButtonGroup>
-                  </Col>
-                </Row>
-              </CardHeader>
-              <CardBody>
-                <div className="chart-area">
-                   <RecipeReviewCard/>
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
+      <div className="content" theme={theme}>
+        
         <Row>
           <Col xs="12">
             <Card className="card-chart">
@@ -251,62 +279,7 @@ function Dashboard(props) {
                     <CardTitle tag="h2">Intraday Price</CardTitle>
                   </Col>
                   <Col sm="6">
-                    <ButtonGroup
-                      className="btn-group-toggle float-right"
-                      data-toggle="buttons"
-                    >
-                      <Button
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data1",
-                        })}
-                        color="info"
-                        id="0"
-                        size="sm"
-                        onClick={() => setBgChartData("data1")}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Accounts
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-single-02" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="1"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data2",
-                        })}
-                        onClick={() => setBgChartData("data2")}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Purchases
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-gift-2" />
-                        </span>
-                      </Button>
-                      <Button
-                        color="info"
-                        id="2"
-                        size="sm"
-                        tag="label"
-                        className={classNames("btn-simple", {
-                          active: bigChartData === "data3",
-                        })}
-                        onClick={() => setBgChartData("data3")}
-                      >
-                        <span className="d-none d-sm-block d-md-block d-lg-block d-xl-block">
-                          Sessions
-                        </span>
-                        <span className="d-block d-sm-none">
-                          <i className="tim-icons icon-tap-02" />
-                        </span>
-                      </Button>
-                    </ButtonGroup>
+                
                   </Col>
                 </Row>
               </CardHeader>
@@ -321,7 +294,33 @@ function Dashboard(props) {
             </Card>
           </Col>
         </Row>
-        <Row>
+
+        <FeedItem
+          id={1}
+          impact={89}
+          priceChange={"+22%"}
+          timeWindow={"17H-18H"}
+        />
+        <FeedItem
+          id={2}
+          impact={75}
+          priceChange={"+18%"}
+          timeWindow={"18H-19H"}
+        />
+        <FeedItem
+          id={3}
+          impact={61}
+          priceChange={"-13%"}
+          timeWindow={"16H-17H"}
+        />
+        <FeedItem
+          id={4}
+          impact={42}
+          priceChange={"+9%"}
+          timeWindow={"20H-21H"}
+        />
+
+        {/* <Row>
           <Col lg="4">
             <Card className="card-chart">
               <CardHeader>
@@ -377,339 +376,7 @@ function Dashboard(props) {
               </CardBody>
             </Card>
           </Col>
-        </Row>
-        <Row>
-          <Col lg="6" md="12">
-            <Card className="card-tasks">
-              <CardHeader>
-                <h6 className="title d-inline">Tasks(5)</h6>
-                <p className="card-category d-inline"> today</p>
-                <UncontrolledDropdown>
-                  <DropdownToggle
-                    caret
-                    className="btn-icon"
-                    color="link"
-                    data-toggle="dropdown"
-                    type="button"
-                  >
-                    <i className="tim-icons icon-settings-gear-63" />
-                  </DropdownToggle>
-                  <DropdownMenu aria-labelledby="dropdownMenuLink" right>
-                    <DropdownItem
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      Action
-                    </DropdownItem>
-                    <DropdownItem
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      Another action
-                    </DropdownItem>
-                    <DropdownItem
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      Something else
-                    </DropdownItem>
-                  </DropdownMenu>
-                </UncontrolledDropdown>
-              </CardHeader>
-              <CardBody>
-                <div className="table-full-width table-responsive">
-                  <Table>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Update the Documentation</p>
-                          <p className="text-muted">
-                            Dwuamish Head, Seattle, WA 8:47 AM
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip636901683"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip636901683"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input
-                                defaultChecked
-                                defaultValue=""
-                                type="checkbox"
-                              />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">GDPR Compliance</p>
-                          <p className="text-muted">
-                            The GDPR is a regulation that requires businesses to
-                            protect the personal data and privacy of Europe
-                            citizens for transactions that occur within EU
-                            member states.
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip457194718"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip457194718"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Solve the issues</p>
-                          <p className="text-muted">
-                            Fifty percent of all respondents said they would be
-                            more likely to shop at a company
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip362404923"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip362404923"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Release v2.0.0</p>
-                          <p className="text-muted">
-                            Ra Ave SW, Seattle, WA 98116, SUA 11:19 AM
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip818217463"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip818217463"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Export the processed files</p>
-                          <p className="text-muted">
-                            The report also shows that consumers will not easily
-                            forgive a company once a breach exposing their
-                            personal data occurs.
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip831835125"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip831835125"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <FormGroup check>
-                            <Label check>
-                              <Input defaultValue="" type="checkbox" />
-                              <span className="form-check-sign">
-                                <span className="check" />
-                              </span>
-                            </Label>
-                          </FormGroup>
-                        </td>
-                        <td>
-                          <p className="title">Arival at export process</p>
-                          <p className="text-muted">
-                            Capitol Hill, Seattle, WA 12:34 AM
-                          </p>
-                        </td>
-                        <td className="td-actions text-right">
-                          <Button
-                            color="link"
-                            id="tooltip217595172"
-                            title=""
-                            type="button"
-                          >
-                            <i className="tim-icons icon-pencil" />
-                          </Button>
-                          <UncontrolledTooltip
-                            delay={0}
-                            target="tooltip217595172"
-                            placement="right"
-                          >
-                            Edit Task
-                          </UncontrolledTooltip>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </Table>
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col lg="6" md="12">
-            <Card>
-              <CardHeader>
-                <CardTitle tag="h4">Simple Table</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <Table className="tablesorter" responsive>
-                  <thead className="text-primary">
-                    <tr>
-                      <th>Name</th>
-                      <th>Country</th>
-                      <th>City</th>
-                      <th className="text-center">Salary</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Dakota Rice</td>
-                      <td>Niger</td>
-                      <td>Oud-Turnhout</td>
-                      <td className="text-center">$36,738</td>
-                    </tr>
-                    <tr>
-                      <td>Minerva Hooper</td>
-                      <td>Curaçao</td>
-                      <td>Sinaai-Waas</td>
-                      <td className="text-center">$23,789</td>
-                    </tr>
-                    <tr>
-                      <td>Sage Rodriguez</td>
-                      <td>Netherlands</td>
-                      <td>Baileux</td>
-                      <td className="text-center">$56,142</td>
-                    </tr>
-                    <tr>
-                      <td>Philip Chaney</td>
-                      <td>Korea, South</td>
-                      <td>Overland Park</td>
-                      <td className="text-center">$38,735</td>
-                    </tr>
-                    <tr>
-                      <td>Doris Greene</td>
-                      <td>Malawi</td>
-                      <td>Feldkirchen in Kärnten</td>
-                      <td className="text-center">$63,542</td>
-                    </tr>
-                    <tr>
-                      <td>Mason Porter</td>
-                      <td>Chile</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$78,615</td>
-                    </tr>
-                    <tr>
-                      <td>Jon Porter</td>
-                      <td>Portugal</td>
-                      <td>Gloucester</td>
-                      <td className="text-center">$98,615</td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
+        </Row> */}
       </div>
     </>
   );

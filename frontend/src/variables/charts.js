@@ -83,24 +83,43 @@ let chartExample1 = {
     gradientStroke.addColorStop(0.4, "rgba(29,140,248,0.0)");
     gradientStroke.addColorStop(0, "rgba(29,140,248,0)"); //blue colors
 
+    let gradientStroke2 = ctx.createLinearGradient(0, 230, 0, 50);
+
+    gradientStroke2.addColorStop(1, "rgba(66,134,121,0.15)");
+    gradientStroke2.addColorStop(0.4, "rgba(66,134,121,0.0)"); //green colors
+    gradientStroke2.addColorStop(0, "rgba(66,134,121,0)"); //green colors
+
     return {
       labels: [
-        "JAN",
-        "FEB",
-        "MAR",
-        "APR",
-        "MAY",
-        "JUN",
-        "JUL",
-        "AUG",
-        "SEP",
-        "OCT",
-        "NOV",
-        "DEC",
+       "2021-03-18 21H",
+"2021-03-18 22H",
+"2021-03-18 23H",
+"2021-03-19 00H",
+"2021-03-19 01H",
+"2021-03-19 02H",
+"2021-03-19 03H",
+"2021-03-19 04H",
+"2021-03-19 05H",
+"2021-03-19 06H",
+"2021-03-19 07H",
+"2021-03-19 08H",
+"2021-03-19 09H",
+"2021-03-19 10H",
+"2021-03-19 11H",
+"2021-03-19 12H",
+"2021-03-19 13H",
+"2021-03-19 14H",
+"2021-03-19 15H",
+"2021-03-19 16H",
+"2021-03-19 17H",
+"2021-03-19 18H",
+"2021-03-19 19H",
+"2021-03-19 20H",
+"2021-03-19 21H",
       ],
       datasets: [
         {
-          label: "My First dataset",
+          label: "Actual Price",
           fill: true,
           backgroundColor: gradientStroke,
           borderColor: "#1f8ef1",
@@ -114,7 +133,76 @@ let chartExample1 = {
           pointHoverRadius: 4,
           pointHoverBorderWidth: 15,
           pointRadius: 4,
-          data: [100, 70, 90, 70, 85, 60, 75, 60, 90, 80, 110, 100],
+          data: [
+            -65.13,
+            -123.28,
+            -75.2,
+            26.28,
+            45.74,
+            6.14,
+            52.75,
+            -68.26,
+            78.5,
+            -16.55,
+            325.68,
+            349.05,
+            -314.62,
+            -251.54,
+            31.9,
+            117.87,
+            267.82,
+            240.83,
+            295.18,
+            -181.61,
+            237.47,
+            159.88,
+            161.94,
+            205.31,
+            67.02,
+          ],
+        },
+        {
+          label: "New Forecast",
+          fill: true,
+          backgroundColor: gradientStroke2,
+          borderColor: "#00d6b4",
+          borderWidth: 2,
+          borderDash: [],
+          borderDashOffset: 0.0,
+          pointBackgroundColor: "#00d6b4",
+          pointBorderColor: "rgba(255,255,255,0)",
+          pointHoverBackgroundColor: "#00d6b4",
+          pointBorderWidth: 20,
+          pointHoverRadius: 4,
+          pointHoverBorderWidth: 15,
+          pointRadius: 4,
+          data: [
+            -290.6,
+-214.53,
+24.37,
+111.34,
+22.21,
+76.3,
+-128.79,
+79.13,
+-4.1,
+566.91,
+802.61,
+-509.93,
+-802.77,
+-89.05,
+262.71,
+540.76,
+533.06,
+566.23,
+-307.28,
+187.9,
+372.67,
+275.78,
+345.7,
+108.88,
+388.44,
+          ],
         },
       ],
     };
@@ -337,11 +425,11 @@ const chartExample4 = {
   data: (canvas) => {
     let ctx = canvas.getContext("2d");
 
-    let gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
+    let gradientStroke2 = ctx.createLinearGradient(0, 230, 0, 50);
 
-    gradientStroke.addColorStop(1, "rgba(66,134,121,0.15)");
-    gradientStroke.addColorStop(0.4, "rgba(66,134,121,0.0)"); //green colors
-    gradientStroke.addColorStop(0, "rgba(66,134,121,0)"); //green colors
+    gradientStroke2.addColorStop(1, "rgba(66,134,121,0.15)");
+    gradientStroke2.addColorStop(0.4, "rgba(66,134,121,0.0)"); //green colors
+    gradientStroke2.addColorStop(0, "rgba(66,134,121,0)"); //green colors
 
     return {
       labels: ["JUL", "AUG", "SEP", "OCT", "NOV"],
@@ -349,7 +437,7 @@ const chartExample4 = {
         {
           label: "My First dataset",
           fill: true,
-          backgroundColor: gradientStroke,
+          backgroundColor: gradientStroke2,
           borderColor: "#00d6b4",
           borderWidth: 2,
           borderDash: [],
