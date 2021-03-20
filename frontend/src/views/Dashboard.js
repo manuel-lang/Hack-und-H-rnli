@@ -80,23 +80,17 @@ const useStyles = makeStyles({
 
 
 function RecipeReviewCard() {
-  const ENDPOINT = "http://127.0.0.1:5000/socket";
+  
 
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
 
-  const [notifications, setNotifications] = React.useState([]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
-    socket.on("event", event => {
-      setNotifications(notifications => [...notifications, event]);
-    });
-  }, []);
+  
 
   return (
     <div>
@@ -152,10 +146,21 @@ function RecipeReviewCard() {
 }
 
 function Dashboard(props) {
+  const ENDPOINT = "http://127.0.0.1:5000/socket";
+
   const [bigChartData, setbigChartData] = React.useState("data1");
   const setBgChartData = (name) => {
     setbigChartData(name);
   };
+  const [notifications, setNotifications] = React.useState([]);
+
+  useEffect(() => {
+    const socket = socketIOClient(ENDPOINT);
+    socket.on("event", event => {
+      console.log(event);
+      setNotifications(notifications => [...notifications, event]);
+    });
+  }, []);
   return (
     <>
       <div className="content">
