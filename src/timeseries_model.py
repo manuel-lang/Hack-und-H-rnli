@@ -61,10 +61,19 @@ import wapi
 # series = TimeSeries.from_dataframe(df, 'Month', '#Passengers')
 
 df = pd.read_csv("data/input_data.csv")
-print(df.shape)
-print(df.columns)
+header=df.columns
+df.rename(columns={header[0]: "time",
+           header[1]: "wind actual",
+           header[2]: "price forecast",
+           header[3]: "price actual"}, inplace=True)
+df.reset_index()
+df.set_index("time")
+df["time"] = pd.to_datetime(df["time"], utc=True)
 
-# print(df.iloc[:,0])
+'''
+print(df[["time","price actual"]])
+# df_series = TimeSeries.from_dataframe(df, time_col='time', value_cols=["wind actual", "price forecast", "price actual"]) 
+df_series = TimeSeries.from_dataframe(df[["time","price actual"]], time_col='time', value_cols="price actual")
 # sns.set_theme()
 
 # plt.figure(figsize=(10,5))
@@ -82,38 +91,39 @@ print(df.columns)
 # plt.legend()
 # plt.show()
 
-print(np.sum(df.iloc[:,1]-df.iloc[:,3]))
-'''
+
+
 ### Train and Test Model
 #######################################################
 
-train, val = series.split_before(pd.Timestamp('19580101'))
+train, val = df_series.split_before(pd.Timestamp("2020-01-01 00:00:00+00:00"))
 
 # Normalize the time series (note: we avoid fitting the transformer on the validation set)
 transformer = Scaler()
 train_transformed = transformer.fit_transform(train)
 val_transformed = transformer.transform(val)
-series_transformed = transformer.transform(series)
+series_transformed = transformer.transform(df_series)
 
 my_model = RNNModel(
     model='LSTM',
-    input_chunk_length=12,
-    output_chunk_length=1,
+    input_chunk_length=96,
+    output_chunk_length=96,
     hidden_size=25,
-    n_rnn_layers=1,
+    n_rnn_layers=3,
     dropout=0.4,
     batch_size=16,
-    n_epochs=400,
+    n_epochs=20,
     optimizer_kwargs={'lr': 1e-3}, 
-    model_name='Air_RNN',
+    model_name='Forecast_RNN',
     log_tensorboard=True,
     random_state=42
 )
 
-my_model.fit(train_transformed, val_series=val_transformed, verbose=True)
+# my_model.fit(train_transformed, val_series=val_transformed, verbose=True)
+# my_model = RNNModel.load_from_checkpoint(model_name='Forecast_RNN', best=True)
 
 def eval_model(model):
-    pred_series = model.predict(n=26)
+    pred_series = model.predict(n=20000)
 
     plt.figure(figsize=(8,5))
     series_transformed.plot(label='actual')
@@ -123,17 +133,4 @@ def eval_model(model):
     plt.show()
     
 eval_model(my_model)
-
-
-### Visualize Forecast 
-#######################################################
-
-# sns.set_theme()
-
-# plt.figure(figsize=(10,5))
-# plt.suptitle("Time Series Forecast", fontsize=20)
-# series.plot(label='actual')
-# prediction.plot(label='forecast', lw=3)
-# plt.legend()
-# plt.show()
 '''
