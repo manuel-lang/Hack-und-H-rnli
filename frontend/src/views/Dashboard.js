@@ -15,7 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { useEffect } from "react";
 // nodejs library that concatenates classes
 import classNames from "classnames";
 // react plugin used to create charts
@@ -35,6 +35,8 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+
+import socketIOClient from "socket.io-client";
 
 // reactstrap components
 import {
@@ -78,6 +80,7 @@ const useStyles = makeStyles({
 
 
 function RecipeReviewCard() {
+  const ENDPOINT = "http://127.0.0.1:5000/socket";
 
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(false);
@@ -86,29 +89,36 @@ function RecipeReviewCard() {
     setExpanded(!expanded);
   };
 
+  useEffect(() => {
+    const socket = socketIOClient(ENDPOINT);
+    socket.on("event", event => {
+      console.log(event);
+    });
+  }, []);
+
   return (
-      <div>
-        <IconButton aria-label="add to favorites">
-          <FavoriteIcon 
-            color="primary"
-          />
-        </IconButton>
-        <IconButton aria-label="share">
-          <ShareIcon />
-        </IconButton>
-        <IconButton
-          className={clsx(classes.expand, {
-            [classes.expandOpen]: expanded
-          })}
-          onClick={handleExpandClick}
-          aria-expanded={expanded}
-          aria-label="show more"
-          // className="btn-icon"
-          // color="red"
-        >
-          <ExpandMoreIcon />
-        </IconButton>
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
+    <div>
+      <IconButton aria-label="add to favorites">
+        <FavoriteIcon
+          color="primary"
+        />
+      </IconButton>
+      <IconButton aria-label="share">
+        <ShareIcon />
+      </IconButton>
+      <IconButton
+        className={clsx(classes.expand, {
+          [classes.expandOpen]: expanded
+        })}
+        onClick={handleExpandClick}
+        aria-expanded={expanded}
+        aria-label="show more"
+      // className="btn-icon"
+      // color="red"
+      >
+        <ExpandMoreIcon />
+      </IconButton>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography paragraph>Method:</Typography>
           <Typography paragraph>
@@ -135,7 +145,7 @@ function RecipeReviewCard() {
           </Typography>
         </CardContent>
       </Collapse>
-      </div>
+    </div>
   );
 }
 
@@ -147,7 +157,7 @@ function Dashboard(props) {
   return (
     <>
       <div className="content">
-      {/* <Row>
+        {/* <Row>
           <Col xs="12">
             <Card className="card-chart">
               <CardHeader>
