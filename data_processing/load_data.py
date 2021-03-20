@@ -29,4 +29,5 @@ def load_data() -> pd.DataFrame:
 
 if __name__ == "__main__":
     df = load_data()
+    df.to_csv("data/input_data.csv")
     print(df.index[0:3])
